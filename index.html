@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Floating Image Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    html, body {
+      margin: 0;
+      height: 100vh;
+      cursor: url('./slipper.png'), auto;
+      background-color: #f0f0f0;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    #scoreboard {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background-color: #222;
+      color: white;
+      font-size: 24px;
+      padding: 10px;
+      text-align: center;
+      z-index: 10;
+      cursor: url('./slipper.png'), auto;
+    }
+
+    /* Smaller font on smaller devices */
+    @media (max-width: 600px) {
+      #scoreboard {
+        font-size: 18px;
+        padding: 8px;
+      }
+    }
+
+    #floatingImage {
+      position: absolute;
+      width: 100px;
+      height: auto;
+      cursor: url('./slipper.png'), auto;
+      border: none;
+      background: none;
+      padding: 0;
+      touch-action: manipulation; /* improve touch responsiveness */
+    }
+
+    #floatingImage img {
+      width: 100%;
+      height: auto;
+      cursor: inherit;
+      display: block;
+      user-select: none; /* prevent image selection on mobile */
+      -webkit-user-drag: none; /* prevent dragging on iOS */
+    }
+
+    /* Smaller floating image on smaller screens */
+    @media (max-width: 600px) {
+      #floatingImage {
+        width: 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="scoreboard">
+    Score: <span id="score">0</span>
+  </div>
+
+  <button id="floatingImage">
+    <img src="./adnan.png" alt="Floating" />
+  </button>
+
+  <script>
+    const image = document.getElementById("floatingImage");
+    const scoreDisplay = document.getElementById("score");
+    let score = 0;
+
+    // Size of floating image (will update dynamically)
+    let imgWidth = image.offsetWidth;
+
+    // Speed for movement
+    let dx = 2;
+    let dy = 2;
+
+    // Start at random position inside viewport bounds
+    let x = Math.random() * (window.innerWidth - imgWidth);
+    let y = Math.random() * (window.innerHeight - imgWidth);
+
+    function animate() {
+      x += dx;
+      y += dy;
+
+      // Update image width dynamically (in case of resize)
+      imgWidth = image.offsetWidth;
+
+      // Bounce logic
+      if (x + imgWidth > window.innerWidth || x < 0) dx = -dx;
+      if (y + imgWidth > window.innerHeight || y < 0) dy = -dy;
+
+      image.style.left = x + "px";
+      image.style.top = y + "px";
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    image.addEventListener("click", () => {
+      score++;
+      scoreDisplay.textContent = score;
+    });
+
+    window.addEventListener("resize", () => {
+      // Update position if floating image is outside viewport after resize
+      imgWidth = image.offsetWidth;
+      if (x + imgWidth > window.innerWidth) x = window.innerWidth - imgWidth;
+      if (y + imgWidth > window.innerHeight) y = window.innerHeight - imgWidth;
+    });
+
+    // Optional: increase speed slightly on wider screens
+    function updateSpeedBasedOnWidth() {
+      const width = window.innerWidth;
+      if (width < 600) {
+        dx = dy = 1.5;
+      } else if (width < 900) {
+        dx = dy = 2;
+      } else {
+        dx = dy = 2.5;
+      }
+    }
+    updateSpeedBasedOnWidth();
+
+    window.addEventListener("resize", updateSpeedBasedOnWidth);
+  </script>
+</body>
+</html>
